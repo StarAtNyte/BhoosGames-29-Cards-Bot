@@ -113,16 +113,19 @@ def get_play_card(body):
 
     # if we are the one to throw the first card in the hands
     if(not first_card):
-         return {"card": ISMCTS(rootstate = state, itermax=100)}
+         return {"card": ISMCTS(rootstate = state, itermax=1000)}
     
     first_card_suit = get_suit(first_card)
     own_suit_cards = get_suit_card(body['cards'], first_card_suit)
 
     if len(own_suit_cards) > 0:
-        return {"card": ISMCTS(rootstate = state, itermax=100)}
+        return {"card": ISMCTS(rootstate = state, itermax=1000)}
     
     else:
-        return {"revealTrump" : True}
+        if(body['trumpRevealed']):
+            return {"card": ISMCTS(rootstate = state, itermax=1000)}
+        else:
+            return {"revealTrump" : True}
     
     # if we have the suit with respect to the first card, we throw it
     # if len(own_suit_cards) > 0:

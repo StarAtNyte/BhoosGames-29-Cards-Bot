@@ -108,7 +108,7 @@ class Game:
       suitedPlays = [card for card in self.currentTrick if self.getSuit(card) \
                      == lead_suit]
       trumpPlays = []
-      if(not(self.meTrump(self.currentPlayer) ^ self.trumpRevealed) or (not(self.meTrump(self.currentPlayer)) and self.trumpRevealed)):
+      if(not(self.meTrump(self.currentPlayer) ^ bool(self.trumpRevealed)) or (not(self.meTrump(self.currentPlayer)) and bool(self.trumpRevealed))):
         trumpPlays = [card for card in self.currentTrick if self.getSuit(card) \
                        == self.trumpSuit]
 
@@ -125,7 +125,6 @@ class Game:
       self.playedCards += self.currentTrick
       self.currentTrick = []
       self.currentPlayer = winner
-    print("doMove: ",self.playerHands[self.currentPlayer], "\n")
 
       #if self.playerHands[self.currentPlayer] == []:
 
@@ -134,13 +133,23 @@ class Game:
     if self.currentTrick == []:
       return hand
     else:
-      print("currentTrick: ",self.currentTrick)
-      print("hand: ", hand)
+      if (self.trumpSuit and self.trumpRevealed):
+        was_trump_revealed_in_this_round = self.trumpRevealed["hand"] == len(self.playedCards)/4 + 1
+        did_i_reveal_the_trump = self.trumpRevealed["playerId"] == self.myId
+        if was_trump_revealed_in_this_round and did_i_reveal_the_trump:
+          trump_suit_cards = [card for card in hand if card[1] == self.trumpSuit]
+          if len(trump_suit_cards) > 0:
+            return trump_suit_cards
+          else:
+            return hand
+          
       suitedCard = [card for card in hand if card[1] == self.currentTrick[0][1]]
       if suitedCard != []:
         return suitedCard
       else:
         return hand
+
+        
 
   def getResult(self, playerID):
     partnerIndex = (self.players.index(playerID) + 2) % 4
@@ -201,7 +210,6 @@ def ISMCTS(rootstate, itermax, verbose=False):
     ):  # node is fully expanded and non-terminal
         node = node.UCBSelectChild(state.getMoves())
         state.doMove(node.move)
-        print("reached 1: ", node.move)
 
     # Expand
     untriedMoves = node.getUntriedMoves(state.getMoves())
@@ -210,12 +218,10 @@ def ISMCTS(rootstate, itermax, verbose=False):
         player = state.currentPlayer
         state.doMove(m)
         node = node.addChild(m, player)  # add child and descend tree
-        print("reached 2: \n")
 
     # Simulate
     while state.getMoves() != []:  # while state is non-terminal
         state.doMove(random.choice(state.getMoves()))
-        print("reached 3: \n")
 
     # Backpropagate
     while (
