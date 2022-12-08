@@ -83,12 +83,12 @@ def get_play_card(body):
             my_bid = team['bid']
             me = body['playerId']
         
-        if opponent_bid > my_bid:
-            b = opponent_bid
-            bdr = opponent
-        else:
-            b = my_bid
-            bdr = me
+    if opponent_bid > my_bid:
+        b = opponent_bid
+        bdr = opponent
+    else:
+        b = my_bid
+        bdr = body['playerId']
 
     for hand in body['handsHistory']:
         vw[hand[-1]] += getValue(hand[1])
@@ -162,21 +162,15 @@ def get_play_card(body):
     
     # # trump is revealed only to me
     # # this means we won the bidding phase, and set the trump
-    # if (trump_suit and not trump_revealed):
-    #     trump_suit_cards = get_suit_card(own_cards, trump_suit)
+    if (body['trumpSuit'] and not body['trumpRevealed']):
+        trump_suit_cards = get_suit_card(own_cards, body['trumpSuit'])
         
-    #     # after revealing the trump, we should throw the trump suit card if we have one
-    #     if len(trump_suit_cards) > 0:
-    #         return {
-    #             "revealTrump": True,
-    #             "card": trump_suit_cards[-1]
-    #         }
-        
-    #     else:
-    #         return {
-    #             "revealTrump": True,
-    #             "card": own_cards[-1]
-    #         }
+        # after revealing the trump, we should throw the trump suit card if we have one
+    
+        return {
+            "revealTrump": True,
+            "card": ISMCTS(rootstate = state, itermax=1000)
+        }
     
     # trump has not yet been revealed, let's reveal the trump
     #return {"revealTrump" : True}
