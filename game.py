@@ -1,7 +1,7 @@
 import random
 from copy import deepcopy
-import numpy as np
 from math import sqrt, log
+from utils import reshape
 
 class Game:
   def __init__(self, myId, players, myCards, currentTrick, \
@@ -53,7 +53,7 @@ class Game:
         distribute = distribute[(len(self.playerHands[self.myId]) + 1):]
 
     if(not(self.trumpSuit) and not(self.trumpRevealed)):
-      plays = np.reshape(self.playedCards, (-1,4))
+      plays = reshape(self.playedCards, (len(self.playedCards)//4,4))
       improbable = (card[1] for play in plays for card in play if card[1] != play[0][1])
       probable = [suit for suit in ["S", "D", "H", "C"] if suit not in improbable]
       self.trumpSuit = random.choice(probable)
@@ -199,7 +199,7 @@ class Node:
         self.wins += terminalState.getResult(self.player)
 
 
-def ISMCTS(rootstate, itermax, verbose=False):
+def ISMCTS(rootstate, itermax):
   rootnode = Node()
   for i in range(itermax):
     node = rootnode
