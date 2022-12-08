@@ -1,3 +1,6 @@
+from functools import reduce 
+from operator import mul
+
 def get_suit(card):
   """
   This function returns the suit of the given card.
@@ -19,4 +22,10 @@ def get_suit_card(cards, card_suit):
   """
   
   return [i for i in cards if get_suit(i) == card_suit]
+
+def reshape(lst, shape):
+    if len(shape) == 1:
+        return lst
+    n = reduce(mul, shape[1:])
+    return [reshape(lst[i*n:(i+1)*n], shape[1:]) for i in range(len(lst)//n)]
   
